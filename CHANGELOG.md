@@ -2,6 +2,12 @@
 
 All notable changes to this package will be documented in this file.
 
+## [1.1.2] - 2026-11-27
+
+### Fixed
+- Lowered minimum supported Unity version in `package.json` from `2020.3` to `2019.4` (LTS).
+- Added `#if UNITY_2020_1_OR_NEWER` compatibility fallback (`isNetworkError` / `isHttpError`) in `HttpLogTransport` so Unity 2019.4 builds cleanly without `UnityWebRequest.Result`.
+
 ## [1.1.1] - 2026-11-27
 
 ### Added

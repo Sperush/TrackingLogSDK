@@ -86,7 +86,17 @@ namespace TrackingLogSDK
                 yield return request.SendWebRequest();
 
                 long code = request.responseCode;
-                if (request.result == UnityWebRequest.Result.Success || (code >= 200 && code < 300))
+#if UNITY_2020_1_OR_NEWER
+                bool isSuccess = request.result == UnityWebRequest.Result.Success || (code >= 200 && code < 300);
+                bool isConnectionError = request.result == UnityWebRequest.Result.ConnectionError;
+#else
+#pragma warning disable 0618
+                bool isConnectionError = request.isNetworkError;
+                bool isSuccess = (!request.isNetworkError && !request.isHttpError) || (code >= 200 && code < 300);
+#pragma warning restore 0618
+#endif
+
+                if (isSuccess)
                 {
                     if (onComplete != null)
                     {
@@ -95,7 +105,7 @@ namespace TrackingLogSDK
                     yield break;
                 }
 
-                bool retryable = request.result == UnityWebRequest.Result.ConnectionError
+                bool retryable = isConnectionError
                     || code == 0
                     || code == 408
                     || code == 429
