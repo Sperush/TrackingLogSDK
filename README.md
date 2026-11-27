@@ -6,20 +6,49 @@ Zero-dependency Unity UPM package for standardized game telemetry (`session_trac
 
 ## 1. Cài đặt (Installation)
 
-### Cách A — Cài qua Unity Package Manager (Local Disk / Git URL)
-1. Mở Unity → `Window` → `Package Manager`.
-2. Nhấn nút `+` ở góc trên bên trái:
-   - **Add package from disk...** → chọn file `package.json` trong thư mục `TrackingLogSDK`.
-   - Hoặc **Add package from git URL...** → dán URL Git repo chứa package.
+### Cách A — Cài qua OpenUPM Scoped Registry *(Khuyên dùng — hiện đủ danh sách phiên bản & nút Update tự động)*
+1. Thêm Scoped Registry vào `Packages/manifest.json` của dự án Unity (hoặc trong **Edit → Project Settings → Package Manager → Scoped Registries**):
+   - **Name:** `OpenUPM`
+   - **URL:** `https://package.openupm.com`
+   - **Scope(s):** `com.trackinglog.sdk`
 
-### Cách B — Thêm trực tiếp vào `Packages/manifest.json`
 ```json
 {
+  "scopedRegistries": [
+    {
+      "name": "OpenUPM",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.trackinglog.sdk"
+      ]
+    }
+  ],
   "dependencies": {
-    "com.trackinglog.sdk": "file:../TrackingLogSDK"
+    "com.trackinglog.sdk": "1.1.1"
   }
 }
 ```
+
+2. Trong Unity mở **Window → Package Manager**, đổi bộ lọc góc trên bên trái thành **My Registries**, chọn **Tracking Log SDK** và bấm **Install** (khi có bản mới, Unity sẽ tự hiện danh sách version và nút **Update**).
+3. Hoặc cài nhanh bằng OpenUPM CLI:
+   ```bash
+   openupm add com.trackinglog.sdk
+   ```
+
+### Cách B — Cài qua Git URL
+Mở **Window → Package Manager → `+` → Add package from git URL...** và dán:
+```text
+https://github.com/Sperush/TrackingLogSDK.git
+```
+
+### Phát hành phiên bản mới (Dành cho người duy trì SDK)
+1. Cập nhật `"version"` trong `package.json` và ghi chú trong `CHANGELOG.md`.
+2. Commit lên `main`, tạo tag dạng `vX.Y.Z` (ví dụ `v1.2.0`) và push lên GitHub:
+   ```bash
+   git tag v1.2.0
+   git push origin main --tags
+   ```
+3. GitHub Actions (`.github/workflows/release.yml`) sẽ tự kiểm tra khớp version và tạo GitHub Release; OpenUPM tự động đồng bộ phiên bản mới cho toàn bộ dự án Unity.
 
 ---
 

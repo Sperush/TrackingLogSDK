@@ -2,6 +2,14 @@
 
 All notable changes to this package will be documented in this file.
 
+## [1.1.1] - 2026-11-27
+
+### Added
+- MIT License (`LICENSE.md`) and full OpenUPM metadata in `package.json` (`license`, `licensesUrl`, `documentationUrl`, `changelogUrl`, `repository`, `author`).
+- GitHub Actions release workflow (`.github/workflows/release.yml`) validating `package.json` version against `v*` tags and automatically creating GitHub Releases.
+- Deterministic Unity `.meta` files across package assets (`Runtime/`, `Editor/`, `Tests/`, root metadata files) including WebGL-only plugin settings for `TrackingWebGL.jslib`.
+- OpenUPM Scoped Registry installation and release guide in `README.md`.
+
 ## [1.1.0] - 2026-11-27
 
 ### Added
