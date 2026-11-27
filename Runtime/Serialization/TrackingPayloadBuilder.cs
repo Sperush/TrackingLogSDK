@@ -35,8 +35,13 @@ namespace TrackingLogSDK
             long? endTimeMs,
             float durationSec)
         {
-            string collection = config != null ? config.SessionCollection : "session_track";
-            return BuildPayload(config, metadata, timestampMs, collection, writer =>
+            string fallbackCollection = config != null ? config.SessionCollection : "session_track";
+            string collection = ResolveCollection(config, fallbackCollection);
+            string action = config != null && !string.IsNullOrEmpty(config.SessionAction)
+                ? config.SessionAction
+                : "session_track";
+
+            return BuildPayload(config, metadata, timestampMs, collection, action, writer =>
             {
                 writer.WriteProperty("action_name", actionName ?? string.Empty);
                 writer.WriteProperty("start_time", startTimeMs);
@@ -51,8 +56,13 @@ namespace TrackingLogSDK
             long timestampMs,
             LevelPayloadData data)
         {
-            string collection = config != null ? config.LevelCollection : "level_track";
-            return BuildPayload(config, metadata, timestampMs, collection, writer =>
+            string fallbackCollection = config != null ? config.LevelCollection : "level_track";
+            string collection = ResolveCollection(config, fallbackCollection);
+            string action = config != null && !string.IsNullOrEmpty(config.LevelAction)
+                ? config.LevelAction
+                : "level_track";
+
+            return BuildPayload(config, metadata, timestampMs, collection, action, writer =>
             {
                 writer.WriteProperty("attempt_id", data.AttemptId);
                 writer.WritePropertyValue("level_id", data.LevelId ?? string.Empty);
@@ -112,9 +122,13 @@ namespace TrackingLogSDK
             TrackingMetadata metadata,
             long timestampMs,
             string collection,
-            IDictionary<string, object> fields)
+            IDictionary<string, object> fields,
+            string action = null)
         {
-            return BuildPayload(config, metadata, timestampMs, collection, writer =>
+            string resolvedCollection = ResolveCollection(config, collection);
+            string resolvedAction = !string.IsNullOrEmpty(action) ? action : collection;
+
+            return BuildPayload(config, metadata, timestampMs, resolvedCollection, resolvedAction, writer =>
             {
                 if (fields == null)
                 {
@@ -131,15 +145,26 @@ namespace TrackingLogSDK
             });
         }
 
+        private static string ResolveCollection(TrackingConfig config, string fallbackCollection)
+        {
+            if (config != null && !string.IsNullOrEmpty(config.Collection))
+            {
+                return config.Collection;
+            }
+            return fallbackCollection ?? string.Empty;
+        }
+
         private static string BuildPayload(
             TrackingConfig config,
             TrackingMetadata metadata,
             long timestampMs,
             string collection,
+            string action,
             Action<TrackingJsonWriter> writeBody)
         {
             var writer = new TrackingJsonWriter();
             bool includeCollection = config == null || config.IncludeCollectionField;
+            bool includeAction = config == null || config.IncludeActionField;
             bool wrapped = config != null && config.PayloadFormat == PayloadFormat.Wrapped;
             string wrappedField = config != null && !string.IsNullOrEmpty(config.WrappedDataField)
                 ? config.WrappedDataField
@@ -152,7 +177,12 @@ namespace TrackingLogSDK
                 writer.WriteProperty("collection", collection);
             }
 
-            WriteCommonMetadata(writer, metadata, timestampMs);
+            if (includeAction && !string.IsNullOrEmpty(action))
+            {
+                writer.WriteProperty("action", action);
+            }
+
+            WriteCommonMetadata(writer, config, metadata, timestampMs);
 
             if (wrapped)
             {
@@ -172,14 +202,21 @@ namespace TrackingLogSDK
 
         private static void WriteCommonMetadata(
             TrackingJsonWriter writer,
+            TrackingConfig config,
             TrackingMetadata metadata,
             long timestampMs)
         {
             TrackingMetadata meta = metadata ?? new TrackingMetadata();
+            bool includeUser = config == null || config.IncludeUserField;
+
+            writer.WriteProperty("game_id", meta.GameId ?? string.Empty);
+            if (includeUser)
+            {
+                writer.WriteProperty("user", meta.UserId ?? string.Empty);
+            }
             writer.WriteProperty("session_id", meta.SessionId ?? string.Empty);
             writer.WriteProperty("user_id", meta.UserId ?? string.Empty);
             writer.WriteProperty("timestamp", timestampMs);
-            writer.WriteProperty("game_id", meta.GameId ?? string.Empty);
             writer.WriteProperty("game_version", meta.GameVersion ?? string.Empty);
             writer.WriteProperty("build_id", meta.BuildId ?? string.Empty);
             writer.WriteProperty("platform", meta.Platform ?? string.Empty);

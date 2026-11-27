@@ -383,5 +383,57 @@ namespace TrackingLogSDK.Tests
             Assert.IsFalse(json.Contains("\"collection\":"));
             Assert.IsTrue(json.Contains("\"payload\":{\"step\":2,\"action_name\":\"complete\"}"));
         }
+
+        [Test]
+        public void BackendContract_UsesDefaultEndpoint_CollectionActionAndUserFields()
+        {
+            var defaultConfig = new TrackingConfig();
+            Assert.AreEqual("https://bigame.ezwork.vn/logs", defaultConfig.EndpointUrl);
+
+            var clock = new FakeClock(1795718133000L);
+            var transport = new InMemoryLogTransport();
+            TrackingConfig cfg = CreateBaseConfig();
+            cfg.GameId = "physic_game";
+            cfg.Collection = "B1_Quang";
+
+            TrackingMetadata meta = CreateBaseMetadata();
+            meta.GameId = "physic_game";
+            meta.UserId = "student_01";
+
+            var engine = new TrackingEngine(cfg, meta, transport, new InMemoryAttemptStore(), clock);
+            engine.StartSession();
+            engine.StartLevel("Lv_01", "normal");
+
+            Assert.AreEqual(2, transport.Sent.Count);
+
+            string sessionJson = transport.Sent[0].JsonBody;
+            Assert.AreEqual("B1_Quang", transport.Sent[0].Collection);
+            Assert.IsTrue(sessionJson.Contains("\"game_id\":\"physic_game\""));
+            Assert.IsTrue(sessionJson.Contains("\"collection\":\"B1_Quang\""));
+            Assert.IsTrue(sessionJson.Contains("\"action\":\"session_track\""));
+            Assert.IsTrue(sessionJson.Contains("\"user\":\"student_01\""));
+            Assert.IsTrue(sessionJson.Contains("\"user_id\":\"student_01\""));
+            Assert.IsTrue(sessionJson.Contains("\"action_name\":\"start\""));
+
+            string levelJson = transport.Sent[1].JsonBody;
+            Assert.AreEqual("B1_Quang", transport.Sent[1].Collection);
+            Assert.IsTrue(levelJson.Contains("\"game_id\":\"physic_game\""));
+            Assert.IsTrue(levelJson.Contains("\"collection\":\"B1_Quang\""));
+            Assert.IsTrue(levelJson.Contains("\"action\":\"level_track\""));
+            Assert.IsTrue(levelJson.Contains("\"user\":\"student_01\""));
+            Assert.IsTrue(levelJson.Contains("\"action_name\":\"start\""));
+
+            // When Collection is empty, falls back to SessionCollection / LevelCollection while still emitting action.
+            cfg.Collection = string.Empty;
+            var fallbackTransport = new InMemoryLogTransport();
+            var fallbackEngine = new TrackingEngine(cfg, meta, fallbackTransport, new InMemoryAttemptStore(), clock);
+            fallbackEngine.StartSession();
+            fallbackEngine.StartLevel(1, "normal");
+
+            Assert.IsTrue(fallbackTransport.Sent[0].JsonBody.Contains("\"collection\":\"session_track\""));
+            Assert.IsTrue(fallbackTransport.Sent[0].JsonBody.Contains("\"action\":\"session_track\""));
+            Assert.IsTrue(fallbackTransport.Sent[1].JsonBody.Contains("\"collection\":\"level_track\""));
+            Assert.IsTrue(fallbackTransport.Sent[1].JsonBody.Contains("\"action\":\"level_track\""));
+        }
     }
 }

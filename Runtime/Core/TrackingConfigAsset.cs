@@ -21,7 +21,7 @@ namespace TrackingLogSDK
     public sealed class TrackingConfigAsset : ScriptableObject
     {
         [Header("Endpoint & Authentication")]
-        public string EndpointUrl = "";
+        public string EndpointUrl = TrackingConfig.DefaultEndpointUrl;
         public string ApiKey = "";
         public string ApiKeyHeader = "X-API-Key";
         public string BearerToken = "";
@@ -39,13 +39,20 @@ namespace TrackingLogSDK
         public string BrowserOverride = "";
 
         [Header("Collections & Format")]
+        [Tooltip("Target collection name on backend (e.g., B1_Quang). Leave empty to fall back to SessionCollection / LevelCollection.")]
+        public string Collection = "";
+        public string SessionAction = "session_track";
+        public string LevelAction = "level_track";
         public string SessionCollection = "session_track";
         public string LevelCollection = "level_track";
         public bool IncludeCollectionField = true;
+        public bool IncludeActionField = true;
+        public bool IncludeUserField = true;
         public PayloadFormat PayloadFormat = PayloadFormat.Flat;
         public string WrappedDataField = "data";
 
         [Header("Tracking Behavior")]
+        public bool AutoGenerateAnonymousUserId = true;
         [Min(0.5f)]
         public float InProgressIntervalSeconds = 5f;
         [Tooltip("If true, in_progress sends only events since the previous in_progress tick; end always sends all run events.")]
@@ -78,7 +85,7 @@ namespace TrackingLogSDK
         {
             var config = new TrackingConfig
             {
-                EndpointUrl = EndpointUrl ?? string.Empty,
+                EndpointUrl = string.IsNullOrWhiteSpace(EndpointUrl) ? TrackingConfig.DefaultEndpointUrl : EndpointUrl.Trim(),
                 ApiKey = ApiKey ?? string.Empty,
                 ApiKeyHeader = string.IsNullOrWhiteSpace(ApiKeyHeader) ? "X-API-Key" : ApiKeyHeader,
                 BearerToken = BearerToken ?? string.Empty,
@@ -88,11 +95,17 @@ namespace TrackingLogSDK
                 BuildId = BuildId ?? string.Empty,
                 PlatformOverride = PlatformOverride ?? string.Empty,
                 BrowserOverride = BrowserOverride ?? string.Empty,
+                Collection = Collection != null ? Collection.Trim() : string.Empty,
+                SessionAction = string.IsNullOrWhiteSpace(SessionAction) ? "session_track" : SessionAction.Trim(),
+                LevelAction = string.IsNullOrWhiteSpace(LevelAction) ? "level_track" : LevelAction.Trim(),
                 SessionCollection = string.IsNullOrWhiteSpace(SessionCollection) ? "session_track" : SessionCollection,
                 LevelCollection = string.IsNullOrWhiteSpace(LevelCollection) ? "level_track" : LevelCollection,
                 IncludeCollectionField = IncludeCollectionField,
+                IncludeActionField = IncludeActionField,
+                IncludeUserField = IncludeUserField,
                 PayloadFormat = PayloadFormat,
                 WrappedDataField = string.IsNullOrWhiteSpace(WrappedDataField) ? "data" : WrappedDataField,
+                AutoGenerateAnonymousUserId = AutoGenerateAnonymousUserId,
                 InProgressIntervalSeconds = InProgressIntervalSeconds > 0f ? InProgressIntervalSeconds : 5f,
                 InProgressDeltaEventsOnly = InProgressDeltaEventsOnly,
                 AutoStartSession = AutoStartSession,

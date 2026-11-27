@@ -10,8 +10,9 @@ namespace TrackingLogSDK.Samples
     public sealed class QuickStartDemo : MonoBehaviour
     {
         [Header("SDK Configuration")]
-        [SerializeField] private string endpointUrl = "https://your-api.example.com/logs";
-        [SerializeField] private string gameId = "my_unity_game";
+        [SerializeField] private string endpointUrl = TrackingConfig.DefaultEndpointUrl;
+        [SerializeField] private string gameId = "physic_game";
+        [SerializeField] private string collection = "B1_Quang";
         [SerializeField] private string buildId = "dev_01";
         [SerializeField] private string userId = "player_1001";
 
@@ -24,6 +25,7 @@ namespace TrackingLogSDK.Samples
             {
                 EndpointUrl = endpointUrl,
                 GameId = gameId,
+                Collection = collection,
                 GameVersion = Application.version,
                 BuildId = buildId,
                 InProgressIntervalSeconds = 5f,

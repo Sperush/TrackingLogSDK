@@ -42,9 +42,9 @@ public class GameBootstrap : MonoBehaviour
     {
         var config = new TrackingConfig
         {
-            EndpointUrl = "https://your-api.example.com/api/v1/logs",
-            ApiKey = "your-api-key",
-            GameId = "my_game_01",
+            EndpointUrl = TrackingConfig.DefaultEndpointUrl, // https://bigame.ezwork.vn/logs
+            GameId = "physic_game",
+            Collection = "B1_Quang",
             GameVersion = Application.version,
             BuildId = "build_01",
             InProgressIntervalSeconds = 5f,
@@ -124,11 +124,13 @@ TrackingLog.Initialize(config, new MyCustomTransport());
 ### `session_track` (`start`)
 ```json
 {
-  "collection": "session_track",
+  "collection": "B1_Quang",
+  "action": "session_track",
+  "game_id": "physic_game",
+  "user": "player_01",
   "session_id": "a1b2c3d4e5f6",
   "user_id": "player_01",
   "timestamp": 1795718133134,
-  "game_id": "my_game_01",
   "game_version": "1.0.0",
   "build_id": "build_01",
   "platform": "Windows",
@@ -145,11 +147,13 @@ TrackingLog.Initialize(config, new MyCustomTransport());
 ### `level_track` (`in_progress` mỗi 5s)
 ```json
 {
-  "collection": "level_track",
+  "collection": "B1_Quang",
+  "action": "level_track",
+  "game_id": "physic_game",
+  "user": "player_01",
   "session_id": "a1b2c3d4e5f6",
   "user_id": "player_01",
   "timestamp": 1795718138134,
-  "game_id": "my_game_01",
   "game_version": "1.0.0",
   "build_id": "build_01",
   "platform": "WebGL",

@@ -112,7 +112,7 @@ namespace TrackingLogSDK
                 null,
                 0f);
 
-            EnqueuePayload(_config.SessionCollection, "start", nowMs, json, immediate: false);
+            EnqueuePayload(ResolveTargetCollection(_config.SessionCollection), "start", nowMs, json, immediate: false);
         }
 
         public void EndSession()
@@ -231,8 +231,10 @@ namespace TrackingLogSDK
             }
 
             long nowMs = _clock.UtcNowMs;
-            string json = TrackingPayloadBuilder.BuildCustomPayload(_config, _metadata, nowMs, collection, fields);
-            EnqueuePayload(collection, actionName ?? string.Empty, nowMs, json, immediate: false);
+            string resolvedCollection = ResolveTargetCollection(collection);
+            string resolvedAction = !string.IsNullOrEmpty(actionName) ? actionName : collection;
+            string json = TrackingPayloadBuilder.BuildCustomPayload(_config, _metadata, nowMs, collection, fields, resolvedAction);
+            EnqueuePayload(resolvedCollection, resolvedAction, nowMs, json, immediate: false);
         }
 
         public void Tick(float deltaSeconds)
@@ -244,7 +246,7 @@ namespace TrackingLogSDK
             {
                 long nowMs = _clock.UtcNowMs;
                 string json = TrackingPayloadBuilder.BuildLevelPayload(_config, _metadata, nowMs, inProgress);
-                EnqueuePayload(_config.LevelCollection, inProgress.ActionName, nowMs, json, immediate: false);
+                EnqueuePayload(ResolveTargetCollection(_config.LevelCollection), inProgress.ActionName, nowMs, json, immediate: false);
             }
 
             _queue.Tick(_clock.UtcNowMs);
@@ -311,7 +313,7 @@ namespace TrackingLogSDK
 
             long nowMs = _clock.UtcNowMs;
             string json = TrackingPayloadBuilder.BuildLevelPayload(_config, _metadata, nowMs, data);
-            EnqueuePayload(_config.LevelCollection, data.ActionName, nowMs, json, immediate: false);
+            EnqueuePayload(ResolveTargetCollection(_config.LevelCollection), data.ActionName, nowMs, json, immediate: false);
         }
 
         private void EndLevelInternal(string actionType, string loseReason, IDictionary<string, object> finalResult, bool immediate)
@@ -325,7 +327,7 @@ namespace TrackingLogSDK
             _pausedByFocusLoss = false;
             long nowMs = _clock.UtcNowMs;
             string json = TrackingPayloadBuilder.BuildLevelPayload(_config, _metadata, nowMs, data);
-            EnqueuePayload(_config.LevelCollection, data.ActionName, nowMs, json, immediate: immediate);
+            EnqueuePayload(ResolveTargetCollection(_config.LevelCollection), data.ActionName, nowMs, json, immediate: immediate);
         }
 
         private void EndSessionInternal(bool immediate)
@@ -346,7 +348,14 @@ namespace TrackingLogSDK
                 _session.EndTimeMs,
                 _session.ActiveDurationSec);
 
-            EnqueuePayload(_config.SessionCollection, "end", nowMs, json, immediate: immediate);
+            EnqueuePayload(ResolveTargetCollection(_config.SessionCollection), "end", nowMs, json, immediate: immediate);
+        }
+
+        private string ResolveTargetCollection(string fallbackCollection)
+        {
+            return !string.IsNullOrEmpty(_config.Collection)
+                ? _config.Collection
+                : (fallbackCollection ?? string.Empty);
         }
 
         private void EnqueuePayload(string collection, string actionName, long timestampMs, string json, bool immediate)

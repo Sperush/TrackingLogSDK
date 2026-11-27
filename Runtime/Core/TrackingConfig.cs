@@ -19,8 +19,10 @@ namespace TrackingLogSDK
     [Serializable]
     public sealed class TrackingConfig
     {
+        public const string DefaultEndpointUrl = "https://bigame.ezwork.vn/logs";
+
         // Endpoint & Authentication
-        public string EndpointUrl = string.Empty;
+        public string EndpointUrl = DefaultEndpointUrl;
         public string ApiKey = string.Empty;
         public string ApiKeyHeader = "X-API-Key";
         public string BearerToken = string.Empty;
@@ -35,13 +37,19 @@ namespace TrackingLogSDK
         public string BrowserOverride = string.Empty;
 
         // Collections & Payload Layout
+        public string Collection = string.Empty;
+        public string SessionAction = "session_track";
+        public string LevelAction = "level_track";
         public string SessionCollection = "session_track";
         public string LevelCollection = "level_track";
         public bool IncludeCollectionField = true;
+        public bool IncludeActionField = true;
+        public bool IncludeUserField = true;
         public PayloadFormat PayloadFormat = PayloadFormat.Flat;
         public string WrappedDataField = "data";
 
         // Tracking Behavior
+        public bool AutoGenerateAnonymousUserId = true;
         public float InProgressIntervalSeconds = 5f;
         public bool InProgressDeltaEventsOnly = true;
         public bool AutoStartSession = true;

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace TrackingLogSDK
@@ -7,6 +8,8 @@ namespace TrackingLogSDK
     /// </summary>
     public static class UnityEnvironmentCollector
     {
+        private const string AnonymousUserKey = "TrackingLog_AnonymousUserId";
+
         public static TrackingMetadata Collect(TrackingConfig config)
         {
             var meta = new TrackingMetadata
@@ -21,6 +24,18 @@ namespace TrackingLogSDK
                 Platform = NormalizePlatform(Application.platform),
                 Browser = string.Empty
             };
+
+            if (config != null && config.AutoGenerateAnonymousUserId && string.IsNullOrEmpty(meta.UserId))
+            {
+                string storedUser = PlayerPrefs.GetString(AnonymousUserKey, string.Empty);
+                if (string.IsNullOrEmpty(storedUser))
+                {
+                    storedUser = "player_" + Guid.NewGuid().ToString("N").Substring(0, 8);
+                    PlayerPrefs.SetString(AnonymousUserKey, storedUser);
+                    PlayerPrefs.Save();
+                }
+                meta.UserId = storedUser;
+            }
 
 #if UNITY_WEBGL && !UNITY_EDITOR
             string userAgent = TrackingWebGLBridge.GetUserAgent();

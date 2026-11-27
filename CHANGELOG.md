@@ -2,6 +2,14 @@
 
 All notable changes to this package will be documented in this file.
 
+## [1.1.0] - 2026-11-27
+
+### Added
+- Default production endpoint `https://bigame.ezwork.vn/logs` (`TrackingConfig.DefaultEndpointUrl`).
+- `TrackingConfig.Collection` / `TrackingConfigAsset.Collection` for routing all logs of a game/lesson into a target MongoDB collection (e.g., `B1_Quang`), falling back to `SessionCollection` / `LevelCollection` when empty.
+- Top-level `action` (`SessionAction` / `LevelAction`) and `user` fields in serialized JSON payloads matching the backend ingestion API contract (`game_id`, `collection`, `action`, `user`).
+- `AutoGenerateAnonymousUserId` option in `UnityEnvironmentCollector` to generate and persist an anonymous `player_<id>` in `PlayerPrefs` when no user ID is set yet.
+
 ## [1.0.0] - 2026-11-27
 
 ### Added

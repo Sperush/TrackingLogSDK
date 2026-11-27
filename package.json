@@ -1,6 +1,6 @@
 {
   "name": "com.trackinglog.sdk",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "displayName": "Tracking Log SDK",
   "description": "Lightweight, zero-dependency Unity SDK for session_track, level_track (start, retry, in_progress, end), and custom telemetry events across Standalone, Mobile, and WebGL.",
   "unity": "2020.3",
