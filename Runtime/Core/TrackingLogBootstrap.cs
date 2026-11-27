@@ -3,13 +3,19 @@ using UnityEngine;
 namespace TrackingLogSDK
 {
     /// <summary>
-    /// Drop-in component for initializing Tracking Log SDK from a TrackingConfigAsset in Awake.
+    /// Drop-in component for initializing Tracking Log SDK in Awake from a TrackingConfigAsset
+    /// ScriptableObject, an optional JSON config, or Resources/TrackingLogConfig.asset automatically.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class TrackingLogBootstrap : MonoBehaviour
     {
+        [Tooltip("Primary ScriptableObject config asset. If empty, SDK auto-loads Resources/TrackingLogConfig.asset.")]
         [SerializeField]
         private TrackingConfigAsset configAsset = null;
+
+        [Tooltip("Optional standalone tracking_config.json TextAsset. Used if configAsset is not assigned.")]
+        [SerializeField]
+        private TextAsset jsonConfigFile = null;
 
         [SerializeField]
         private bool dontDestroyOnLoad = true;
@@ -30,14 +36,14 @@ namespace TrackingLogSDK
             {
                 TrackingLog.Initialize(configAsset);
             }
+            else if (jsonConfigFile != null)
+            {
+                TrackingLog.Initialize(jsonConfigFile);
+            }
             else
             {
-                Debug.LogWarning("[TrackingLogBootstrap] TrackingConfigAsset is not assigned. Using default config (Console only).");
-                TrackingLog.Initialize(new TrackingConfig
-                {
-                    EnableHttpTransport = false,
-                    EnableConsoleTransport = true
-                });
+                // Auto-loads Resources/TrackingLogConfig.asset, Resources/tracking_config.json, or defaults.
+                TrackingLog.Initialize();
             }
         }
     }

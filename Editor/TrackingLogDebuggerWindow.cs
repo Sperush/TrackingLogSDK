@@ -63,7 +63,12 @@ namespace TrackingLogSDK.Editor
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
 
-            if (GUILayout.Button("Create Config Asset", EditorStyles.toolbarButton, GUILayout.Width(135f)))
+            if (GUILayout.Button("Open/Create Config", EditorStyles.toolbarButton, GUILayout.Width(125f)))
+            {
+                TrackingLogConfigMenu.OpenOrCreateScriptableObjectConfig();
+            }
+
+            if (GUILayout.Button("Save Asset As...", EditorStyles.toolbarButton, GUILayout.Width(100f)))
             {
                 CreateConfigAsset();
             }

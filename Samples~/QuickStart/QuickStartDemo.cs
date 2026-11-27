@@ -5,11 +5,15 @@ namespace TrackingLogSDK.Samples
 {
     /// <summary>
     /// Minimal generic integration example showing how to initialize TrackingLog SDK
-    /// and report session, level, component event, and result snapshot telemetry.
+    /// from a centralized TrackingConfigAsset ScriptableObject (or automatic Resources/TrackingLogConfig.asset lookup).
     /// </summary>
     public sealed class QuickStartDemo : MonoBehaviour
     {
-        [Header("SDK Configuration")]
+        [Header("Standalone ScriptableObject Config (Recommended)")]
+        [Tooltip("Optional TrackingConfigAsset. If null, SDK auto-loads Resources/TrackingLogConfig.asset or falls back to inline fields.")]
+        [SerializeField] private TrackingConfigAsset configAsset = null;
+
+        [Header("Fallback Inline Configuration")]
         [SerializeField] private string endpointUrl = TrackingConfig.DefaultEndpointUrl;
         [SerializeField] private string gameId = "physic_game";
         [SerializeField] private string collection = "B1_Quang";
@@ -21,20 +25,34 @@ namespace TrackingLogSDK.Samples
 
         private void Awake()
         {
-            var config = new TrackingConfig
+            if (configAsset != null)
             {
-                EndpointUrl = endpointUrl,
-                GameId = gameId,
-                Collection = collection,
-                GameVersion = Application.version,
-                BuildId = buildId,
-                InProgressIntervalSeconds = 5f,
-                EnableHttpTransport = !string.IsNullOrEmpty(endpointUrl),
-                EnableConsoleTransport = true
-            };
+                TrackingLog.Initialize(configAsset);
+            }
+            else if (Resources.Load<TrackingConfigAsset>(TrackingConfigLoader.DefaultAssetResourcePath) != null)
+            {
+                TrackingLog.Initialize();
+            }
+            else
+            {
+                var config = new TrackingConfig
+                {
+                    EndpointUrl = endpointUrl,
+                    GameId = gameId,
+                    Collection = collection,
+                    GameVersion = Application.version,
+                    BuildId = buildId,
+                    InProgressIntervalSeconds = 5f,
+                    EnableHttpTransport = !string.IsNullOrEmpty(endpointUrl),
+                    EnableConsoleTransport = true
+                };
+                TrackingLog.Initialize(config);
+            }
 
-            TrackingLog.Initialize(config);
-            TrackingLog.SetUserId(userId);
+            if (!string.IsNullOrEmpty(userId))
+            {
+                TrackingLog.SetUserId(userId);
+            }
         }
 
         private void Start()

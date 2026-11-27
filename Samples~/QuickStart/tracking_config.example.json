@@ -1,0 +1,9 @@
+{
+  "endpoint_url": "https://bigame.ezwork.vn/logs",
+  "game_id": "physic_game",
+  "collection": "B1_Quang",
+  "build_id": "build_01",
+  "in_progress_interval_seconds": 5,
+  "enable_http_transport": true,
+  "enable_console_transport": true
+}

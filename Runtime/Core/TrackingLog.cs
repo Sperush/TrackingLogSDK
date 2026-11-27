@@ -91,11 +91,47 @@ namespace TrackingLogSDK
         }
 
         /// <summary>
-        /// Initializes the SDK from a TrackingConfigAsset ScriptableObject.
+        /// Initializes the SDK using a TrackingConfigAsset ScriptableObject.
         /// </summary>
         public static void Initialize(TrackingConfigAsset configAsset, ILogTransport customTransport = null)
         {
             Initialize(configAsset != null ? configAsset.ToConfig() : new TrackingConfig(), customTransport);
+        }
+
+        /// <summary>
+        /// Initializes the SDK automatically from Resources/tracking_config.json,
+        /// Resources/TrackingLogConfig.asset, or default settings.
+        /// </summary>
+        public static void Initialize(ILogTransport customTransport = null)
+        {
+            Initialize(TrackingConfigLoader.LoadDefault(), customTransport);
+        }
+
+        /// <summary>
+        /// Initializes the SDK from a standalone JSON TextAsset (e.g., tracking_config.json).
+        /// </summary>
+        public static void Initialize(TextAsset jsonConfig, ILogTransport customTransport = null)
+        {
+            TrackingConfig cfg = jsonConfig != null
+                ? TrackingConfigLoader.LoadFromJson(jsonConfig.text)
+                : TrackingConfigLoader.LoadDefault();
+            Initialize(cfg, customTransport);
+        }
+
+        /// <summary>
+        /// Initializes the SDK from a raw JSON string.
+        /// </summary>
+        public static void InitializeFromJson(string json, ILogTransport customTransport = null)
+        {
+            Initialize(TrackingConfigLoader.LoadFromJson(json), customTransport);
+        }
+
+        /// <summary>
+        /// Initializes the SDK from a JSON file path on disk (non-WebGL platforms).
+        /// </summary>
+        public static void InitializeFromJsonFile(string filePath, ILogTransport customTransport = null)
+        {
+            Initialize(TrackingConfigLoader.LoadFromJsonFile(filePath), customTransport);
         }
 
         /// <summary>

@@ -24,7 +24,7 @@ Zero-dependency Unity UPM package for standardized game telemetry (`session_trac
     }
   ],
   "dependencies": {
-    "com.trackinglog.sdk": "1.1.2"
+    "com.trackinglog.sdk": "1.2.0"
   }
 }
 ```
@@ -54,12 +54,32 @@ https://github.com/Sperush/TrackingLogSDK.git
 
 ## 2. Cấu hình nhanh (Quick Setup)
 
-### Cách 1: Không cần viết code khởi tạo (Inspector)
-1. Trong Project window, chuột phải → `Create` → `Tracking Log SDK` → `Config` để tạo `TrackingLogConfig.asset`.
-2. Điền `Endpoint Url`, `Game Id`, `Game Version`, `Build Id` và bật các transport mong muốn (`Enable Http Transport`, `Enable Console Transport`, `Enable File Transport`).
-3. Gắn component `TrackingLogBootstrap` vào một `GameObject` ở scene đầu tiên và kéo `TrackingLogConfig.asset` vào ô **Config Asset**.
+### Cách 1: Tách 1 file ScriptableObject riêng (`TrackingLogConfig.asset`) *(Khuyên dùng)*
+1. Trong Unity, mở menu **`Window → Tracking Log SDK → Open or Create Config (ScriptableObject)`** để tạo (hoặc mở nhanh) file `Assets/Resources/TrackingLogConfig.asset`.
+   *(Hoặc chuột phải trong Project → `Create` → `Tracking Log SDK` → `Config`).*
+2. Chọn `TrackingLogConfig.asset` và chỉnh trực tiếp trên Inspector:
+   - `Endpoint Url`: mặc định `https://bigame.ezwork.vn/logs`
+   - `Game Id`: ví dụ `physic_game`
+   - `Collection`: ví dụ `B1_Quang`
+   - `Build Id`: mã bản build
+3. Gọi **`TrackingLog.Initialize();`** (không cần truyền tham số) hoặc gắn component `TrackingLogBootstrap` vào GameObject đầu tiên — SDK tự động nạp `Assets/Resources/TrackingLogConfig.asset`.
 
-### Cách 2: Khởi tạo bằng code (C#)
+### Cách 2: Tách file JSON riêng (`tracking_config.json`) *(Tùy chọn)*
+1. Mở menu **`Window → Tracking Log SDK → Create JSON Config (Optional)`** để tạo `Assets/Resources/tracking_config.json`:
+```json
+{
+  "endpoint_url": "https://bigame.ezwork.vn/logs",
+  "game_id": "physic_game",
+  "collection": "B1_Quang",
+  "build_id": "build_01",
+  "in_progress_interval_seconds": 5,
+  "enable_http_transport": true,
+  "enable_console_transport": false
+}
+```
+2. Nếu dự án không có `TrackingLogConfig.asset`, `TrackingLog.Initialize();` tự động đọc `tracking_config.json`.
+
+### Cách 3: Khởi tạo trực tiếp bằng code (C#)
 ```csharp
 using System.Collections.Generic;
 using TrackingLogSDK;

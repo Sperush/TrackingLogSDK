@@ -2,6 +2,15 @@
 
 All notable changes to this package will be documented in this file.
 
+## [1.2.0] - 2026-11-27
+
+### Added
+- Centralized ScriptableObject auto-loading (`Assets/Resources/TrackingLogConfig.asset`) via `TrackingConfigLoader` and zero-argument `TrackingLog.Initialize()`.
+- One-click Editor menu `Window > Tracking Log SDK > Open or Create Config (ScriptableObject)` (`TrackingLogConfigMenu`) and quick button in Live Debugger.
+- Optional standalone JSON configuration support via `TrackingConfigSerializer` (`ToJson` / `FromJson` / `CreateTemplateJson`), `TrackingLog.Initialize(TextAsset)`, `TrackingLog.InitializeFromJson(string)`, and `TrackingLog.InitializeFromJsonFile(string)`.
+- `TrackingLogBootstrap` auto-loads `Resources/TrackingLogConfig.asset` when no explicit asset is dragged in.
+- `Samples~/QuickStart/tracking_config.example.json`.
+
 ## [1.1.2] - 2026-11-27
 
 ### Fixed

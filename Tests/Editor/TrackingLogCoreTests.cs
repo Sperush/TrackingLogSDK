@@ -435,5 +435,71 @@ namespace TrackingLogSDK.Tests
             Assert.IsTrue(fallbackTransport.Sent[1].JsonBody.Contains("\"collection\":\"level_track\""));
             Assert.IsTrue(fallbackTransport.Sent[1].JsonBody.Contains("\"action\":\"level_track\""));
         }
+
+        [Test]
+        public void ConfigSerializer_PartialJsonPreservesDefaults_AndFullRoundTripWorks()
+        {
+            string partialJson = "{\n"
+                + "  \"game_id\": \"physic_game\",\n"
+                + "  \"collection\": \"B1_Quang\",\n"
+                + "  \"build_id\": \"qa_02\",\n"
+                + "  \"enable_console_transport\": true\n"
+                + "}";
+
+            TrackingConfig partial = TrackingConfigSerializer.FromJson(partialJson);
+            Assert.AreEqual(TrackingConfig.DefaultEndpointUrl, partial.EndpointUrl);
+            Assert.AreEqual("physic_game", partial.GameId);
+            Assert.AreEqual("B1_Quang", partial.Collection);
+            Assert.AreEqual("qa_02", partial.BuildId);
+            Assert.IsTrue(partial.EnableHttpTransport);
+            Assert.IsTrue(partial.EnableConsoleTransport);
+            Assert.AreEqual(5f, partial.InProgressIntervalSeconds);
+
+            var full = new TrackingConfig
+            {
+                EndpointUrl = "https://bigame.ezwork.vn/logs",
+                ApiKey = "secret\"key",
+                ApiKeyHeader = "X-Custom-Key",
+                BearerToken = "tok_123",
+                RequestTimeoutSeconds = 15,
+                GameId = "physic_game",
+                Collection = "B1_Quang",
+                GameVersion = "2.1.0",
+                BuildId = "rel_10",
+                PayloadFormat = PayloadFormat.Wrapped,
+                WrappedDataField = "payload",
+                IncludeActionField = false,
+                IncludeUserField = true,
+                AutoGenerateAnonymousUserId = false,
+                InProgressIntervalSeconds = 7.5f,
+                MaxQueueSize = 250,
+                MaxRetryCount = 4,
+                InitialRetryDelaySeconds = 1.5f
+            };
+            full.CustomHeaders["X-Env"] = "staging";
+
+            string json = TrackingConfigSerializer.ToJson(full, prettyPrint: true);
+            TrackingConfig roundTrip = TrackingConfigSerializer.FromJson(json);
+
+            Assert.AreEqual("https://bigame.ezwork.vn/logs", roundTrip.EndpointUrl);
+            Assert.AreEqual("secret\"key", roundTrip.ApiKey);
+            Assert.AreEqual("X-Custom-Key", roundTrip.ApiKeyHeader);
+            Assert.AreEqual("tok_123", roundTrip.BearerToken);
+            Assert.AreEqual(15, roundTrip.RequestTimeoutSeconds);
+            Assert.AreEqual("physic_game", roundTrip.GameId);
+            Assert.AreEqual("B1_Quang", roundTrip.Collection);
+            Assert.AreEqual("2.1.0", roundTrip.GameVersion);
+            Assert.AreEqual("rel_10", roundTrip.BuildId);
+            Assert.AreEqual(PayloadFormat.Wrapped, roundTrip.PayloadFormat);
+            Assert.AreEqual("payload", roundTrip.WrappedDataField);
+            Assert.IsFalse(roundTrip.IncludeActionField);
+            Assert.IsTrue(roundTrip.IncludeUserField);
+            Assert.IsFalse(roundTrip.AutoGenerateAnonymousUserId);
+            Assert.AreEqual(7.5f, roundTrip.InProgressIntervalSeconds);
+            Assert.AreEqual(250, roundTrip.MaxQueueSize);
+            Assert.AreEqual(4, roundTrip.MaxRetryCount);
+            Assert.AreEqual(1.5f, roundTrip.InitialRetryDelaySeconds);
+            Assert.AreEqual("staging", roundTrip.CustomHeaders["X-Env"]);
+        }
     }
 }
