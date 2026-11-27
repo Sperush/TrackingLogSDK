@@ -15,7 +15,7 @@ namespace TrackingLogSDK
 
         private Func<IDictionary<string, object>> _resultProvider;
         private float _inProgressTimerSec;
-        private float _pauseStartedAtActiveSec;
+        private long _pauseStartedAtMs;
 
         public bool IsActive { get; private set; }
         public bool IsPaused { get; private set; }
@@ -43,6 +43,7 @@ namespace TrackingLogSDK
             ActiveDurationSec = 0f;
             TotalRunDurationSec = 0f;
             _inProgressTimerSec = 0f;
+            _pauseStartedAtMs = 0L;
             IsActive = true;
             IsPaused = false;
 
@@ -102,7 +103,7 @@ namespace TrackingLogSDK
             }
 
             IsPaused = true;
-            _pauseStartedAtActiveSec = (float)(_clock.UtcNowMs / 1000.0);
+            _pauseStartedAtMs = _clock.UtcNowMs;
             if (autoLogPauseEvent)
             {
                 RecordEvent("pause", string.IsNullOrEmpty(reason) ? "menu" : reason);
@@ -116,7 +117,7 @@ namespace TrackingLogSDK
                 return;
             }
 
-            float pauseDuration = Math.Max(0f, (float)(_clock.UtcNowMs / 1000.0) - _pauseStartedAtActiveSec);
+            double pauseDuration = Math.Max(0.0, (_clock.UtcNowMs - _pauseStartedAtMs) / 1000.0);
             IsPaused = false;
             if (autoLogPauseEvent)
             {

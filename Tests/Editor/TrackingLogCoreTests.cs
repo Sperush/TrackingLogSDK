@@ -501,5 +501,30 @@ namespace TrackingLogSDK.Tests
             Assert.AreEqual(1.5f, roundTrip.InitialRetryDelaySeconds);
             Assert.AreEqual("staging", roundTrip.CustomHeaders["X-Env"]);
         }
+
+        [Test]
+        public void LevelTrack_PauseResume_ComputesExactPauseDurationWithRealEpochTimestamp()
+        {
+            var clock = new FakeClock(1795762596804L);
+            var transport = new InMemoryLogTransport();
+            TrackingConfig cfg = CreateBaseConfig();
+            cfg.AutoLogPauseEvents = true;
+
+            var engine = new TrackingEngine(cfg, CreateBaseMetadata(), transport, new InMemoryAttemptStore(), clock);
+            engine.StartSession();
+            engine.StartLevel("Lv_01", "normal");
+
+            clock.AdvanceSeconds(2.0);
+            engine.Tick(2.0f);
+
+            engine.PauseLevel("menu");
+            clock.AdvanceSeconds(8.345);
+            engine.ResumeLevel();
+            engine.EndLevelWin();
+
+            string endJson = transport.Sent[2].JsonBody;
+            Assert.IsTrue(endJson.Contains("\"event_name\":\"pause\",\"value\":\"menu\""));
+            Assert.IsTrue(endJson.Contains("\"event_name\":\"resume\",\"value\":\"8.345\""), "Expected resume value 8.345 in: " + endJson);
+        }
     }
 }

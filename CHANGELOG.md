@@ -2,6 +2,11 @@
 
 All notable changes to this package will be documented in this file.
 
+## [1.2.1] - 2026-11-27
+
+### Fixed
+- Fixed float precision loss when computing `resume` pause duration from Unix epoch milliseconds in `LevelTracker.Pause`/`Resume` by subtracting `long` timestamps (`_pauseStartedAtMs`) before dividing by `1000.0`.
+
 ## [1.2.0] - 2026-11-27
 
 ### Added

@@ -24,7 +24,7 @@ Zero-dependency Unity UPM package for standardized game telemetry (`session_trac
     }
   ],
   "dependencies": {
-    "com.trackinglog.sdk": "1.2.0"
+    "com.trackinglog.sdk": "1.2.1"
   }
 }
 ```
