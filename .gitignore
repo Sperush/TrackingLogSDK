@@ -1,0 +1,46 @@
+# OS generated
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE & Editor
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+# Note: Do NOT ignore *~ because Unity UPM uses trailing ~ folders like Samples~ / Documentation~.
+
+# Generated C# / build artifacts (never belong inside a UPM package)
+*.csproj
+*.sln
+*.user
+*.suo
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+bin/
+obj/
+Build/
+Builds/
+
+# Unity temp / user settings if opened directly
+Temp/
+Library/
+Logs/
+UserSettings/
+MemoryCaptures/
+
+# Packaged archives
+*.tgz
+*.zip
+*.unitypackage
